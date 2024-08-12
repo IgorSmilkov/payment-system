@@ -1,0 +1,7 @@
+Name,Email,Password,Role,Status,Description
+Admin User,admin@example.com,admin,ADMIN,ACTIVE,
+Merchant One,merchant1@example.com,password123,MERCHANT,ACTIVE,Merchant One Description
+Merchant Two,merchant2@example.com,password123,MERCHANT,ACTIVE,Merchant Two Description
+Merchant Three,merchant3@example.com,password123,MERCHANT,ACTIVE,Merchant Three Description
+Merchant Four,merchant4@example.com,password123,MERCHANT,ACTIVE,Merchant Four Description
+Merchant Five,merchant5@example.com,password123,MERCHANT,INACTIVE,Merchant Five Description
