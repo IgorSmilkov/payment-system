@@ -1,9 +1,10 @@
 package com.system.payment.service;
 
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -12,6 +13,7 @@ import com.system.payment.dto.TransactionRequestDto;
 import com.system.payment.dto.TransactionResponseDto;
 import com.system.payment.dto.mapper.TransactionMapper;
 import com.system.payment.factory.TransactionFactory;
+import com.system.payment.model.CustomUserDetails;
 import com.system.payment.model.Merchant;
 import com.system.payment.model.TransactionStatus;
 import com.system.payment.model.transaction.AuthorizeTransaction;
@@ -38,7 +40,6 @@ public class TransactionService {
             backoff = @Backoff(delay = 1000)
     )
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    @PreAuthorize("hasRole('ROLE_MERCHANT')")
     public TransactionResponseDto processTransaction(TransactionRequestDto transactionDto) {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         Merchant merchant = merchantService.findActiveMerchantByEmail(userEmail);
@@ -48,6 +49,17 @@ public class TransactionService {
 
         Transaction savedTransaction = transactionRepository.save(transaction);
         return transactionMapper.toDto(savedTransaction);
+    }
+
+
+    public Page<TransactionResponseDto> getTransactionsForUser(CustomUserDetails userDetails, Pageable pageable) {
+        if (userDetails.hasRole("ROLE_ADMIN")) {
+            return transactionRepository.findAll(pageable)
+                    .map(transactionMapper::toDto);
+        }
+
+        return transactionRepository.findByMerchantUserId(userDetails.getUserId(), pageable)
+                .map(transactionMapper::toDto);
     }
 
     private void validateAndProcessTransaction(Transaction transaction) {

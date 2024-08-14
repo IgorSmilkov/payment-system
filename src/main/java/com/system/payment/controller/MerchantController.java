@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,22 +26,26 @@ public class MerchantController {
     private final MerchantService merchantService;
 
     @GetMapping
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Page<MerchantDto> getAllMerchants(
             @PageableDefault(size = 10, sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable) {
         return merchantService.getAllMerchants(pageable);
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public MerchantDto getMerchantById(@PathVariable Long id) {
         return merchantService.getMerchantById(id);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public MerchantDto updateMerchant(@PathVariable Long id, @Valid @RequestBody UpdateMerchantDto updateMerchantDTO) {
         return merchantService.updateMerchant(id, updateMerchantDTO);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public void deleteMerchant(@PathVariable Long id) {
         merchantService.deleteMerchant(id);
     }

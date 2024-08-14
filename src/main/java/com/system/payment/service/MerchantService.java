@@ -5,7 +5,6 @@ import static com.system.payment.exception.PaymentServiceErrorCode.MERCHANT_HAS_
 import static com.system.payment.exception.PaymentServiceErrorCode.MERCHANT_IS_NOT_ACTIVE;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.system.payment.dto.MerchantDto;
@@ -40,13 +39,11 @@ public class MerchantService {
     }
 
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Page<MerchantDto> getAllMerchants(Pageable pageable) {
         return merchantRepository.findAll(pageable)
                 .map(merchantMapper::toMerchantDto);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public MerchantDto getMerchantById(Long id) {
         Merchant merchant = getMerchant(id);
         return merchantMapper.toMerchantDto(merchant);
@@ -54,7 +51,6 @@ public class MerchantService {
 
 
     @Transactional
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public MerchantDto updateMerchant(Long id, UpdateMerchantDto updateMerchantDto) {
         Merchant merchant = getMerchant(id);
 
@@ -69,7 +65,6 @@ public class MerchantService {
     }
 
     @Transactional
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public void deleteMerchant(Long id) {
         Long transactionCount = merchantRepository.countTransactionsByMerchantId(id);
         if (transactionCount > 0) {
