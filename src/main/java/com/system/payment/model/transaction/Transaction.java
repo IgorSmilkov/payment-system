@@ -8,6 +8,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import com.system.payment.model.Merchant;
 import com.system.payment.model.TransactionStatus;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.DiscriminatorType;
@@ -71,7 +72,7 @@ public abstract class Transaction {
     @JoinColumn(name = "reference_id")
     private Transaction referenceTransaction;
 
-    @OneToMany(mappedBy = "referenceTransaction")
+    @OneToMany(mappedBy = "referenceTransaction", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Transaction> referencingTransactions = new HashSet<>();
 
     @Version
