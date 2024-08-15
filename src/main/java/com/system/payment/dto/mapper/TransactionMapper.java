@@ -1,5 +1,6 @@
 package com.system.payment.dto.mapper;
 
+import java.math.BigDecimal;
 import org.mapstruct.Builder;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
@@ -25,6 +26,7 @@ public interface TransactionMapper {
 
     @Mapping(target = "referenceTransactionId", expression = "java(transaction.getReferenceTransaction() != null ? transaction.getReferenceTransaction().getId() : null)")
     @Mapping(target = "type", expression = "java(determineTransactionType(transaction))")
+    @Mapping(target = "amount", expression = "java(getAmount(transaction))")
     @Mapping(target = "merchant.id", source = "transaction.merchant.id")
     @Mapping(target = "merchant.name", source = "transaction.merchant.user.name")
     @Mapping(target = "merchant.email", source = "transaction.merchant.user.email")
@@ -42,6 +44,17 @@ public interface TransactionMapper {
             return TransactionType.REVERSAL;
         }
         throw new IllegalArgumentException("Unknown transaction type");
+    }
+
+    default BigDecimal getAmount(Transaction transaction) {
+        if (transaction instanceof AuthorizeTransaction) {
+            return ((AuthorizeTransaction) transaction).getAmount();
+        } else if (transaction instanceof ChargeTransaction) {
+            return ((ChargeTransaction) transaction).getAmount();
+        } else if (transaction instanceof RefundTransaction) {
+            return ((RefundTransaction) transaction).getAmount();
+        }
+        return null;
     }
 }
 
