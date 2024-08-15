@@ -5,6 +5,18 @@ import com.system.payment.model.transaction.Transaction;
 
 public abstract class BaseTransactionValidator<T extends Transaction> implements TransactionValidator<T> {
 
+    /**
+     * Template method that enforces a sequence of validation steps for a transaction.
+     * <p>
+     * This method follows the Template Method design pattern, defining the skeleton of the
+     * validation algorithm. It checks the consistency of the merchant associated with the
+     * transaction, validates the order of the transaction, and then delegates the remaining
+     * validation to subclasses.
+     *
+     * @param transaction the transaction to be validated.
+     * @return {@code true} if the transaction is valid according to all validation steps,
+     * {@code false} otherwise.
+     */
     @Override
     public final boolean isValid(T transaction) {
         if (!isMerchantConsistent(transaction)) {

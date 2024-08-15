@@ -41,6 +41,9 @@ public class TransactionCleanupService {
                 .forEach(this::deleteTransactionAndLog);
     }
 
+    /**
+     * Determines if a transaction and all its referencing transactions are eligible for deletion.
+     */
     private boolean canDeleteTransaction(Transaction transaction, LocalDateTime thresholdDateTime) {
         // Return true only if the transaction and all its referencing transactions are older than the threshold
         return transaction.getCreatedDate().isBefore(thresholdDateTime) &&

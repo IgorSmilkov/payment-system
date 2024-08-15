@@ -34,6 +34,21 @@ public class TransactionService {
     private final TransactionValidationService transactionValidationService;
     private final TransactionMapper transactionMapper;
 
+    /**
+     * Processes a transaction request, including validation and persistence.
+     * <p>
+     * This method handles the entire lifecycle of a transaction request:
+     * <ul>
+     *   <li>Identifies the merchant based on the currently authenticated user.</li>
+     *   <li>Creates a transaction using a strategy specific to the transaction type.</li>
+     *   <li>Validates the transaction.</li>
+     *   <li>Saves the transaction to the database.</li>
+     *   <li>Returns a DTO representing the processed transaction.</li>
+     * </ul>
+     * <p>
+     * The method is retryable, with up to 5 attempts, to handle potential optimistic locking failures
+     * that might occur due to concurrent updates.
+     */
     @Retryable(
             retryFor = OptimisticLockingFailureException.class,
             maxAttempts = 5,
@@ -73,6 +88,15 @@ public class TransactionService {
         updateMerchantTransactionSum(transaction);
     }
 
+    /**
+     * Updates the status of a referenced transaction based on the type of the current transaction.
+     * <p>
+     * This method is specifically responsible for updating the status of transactions
+     * that are referenced by refund or reversal transactions. It ensures that the referenced
+     * transactions reflect the correct status after the refund or reversal operation.
+     *
+     * @param transaction the transaction whose referenced transaction status needs to be updated.
+     */
     private void updateReferencedTransactionStatus(Transaction transaction) {
         if (transaction instanceof RefundTransaction refundTransaction) {
             updateRefundTransactionStatus(refundTransaction);
@@ -93,6 +117,15 @@ public class TransactionService {
         transactionRepository.save(referencedTransaction);
     }
 
+    /**
+     * Updates the total transaction sum for the merchant based on the type of the current transaction.
+     * <p>
+     * This method handles the adjustment of the merchant's total transaction sum by adding
+     * the amount for a successful {@code ChargeTransaction} or subtracting the amount for a
+     * successful {@code RefundTransaction}.
+     *
+     * @param transaction the transaction whose amount needs to update the merchant's total sum.
+     */
     private void updateMerchantTransactionSum(Transaction transaction) {
         Merchant merchant = transaction.getMerchant();
 
